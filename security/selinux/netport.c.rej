@@ -1,0 +1,38 @@
+--- security/selinux/netport.c
++++ security/selinux/netport.c
+@@ -217,7 +217,7 @@
+  * Remove all entries from the network address table.
+  *
+  */
+-static void sel_netport_flush(void)
++void sel_netport_flush(void)
+ {
+ 	unsigned int idx;
+ 	struct sel_netport *port, *port_tmp;
+@@ -234,15 +234,6 @@
+ 	spin_unlock_bh(&sel_netport_lock);
+ }
+ 
+-static int sel_netport_avc_callback(u32 event)
+-{
+-	if (event == AVC_CALLBACK_RESET) {
+-		sel_netport_flush();
+-		synchronize_net();
+-	}
+-	return 0;
+-}
+-
+ static __init int sel_netport_init(void)
+ {
+ 	int iter;
+@@ -256,10 +247,6 @@
+ 		sel_netport_hash[iter].size = 0;
+ 	}
+ 
+-	ret = avc_add_callback(sel_netport_avc_callback, AVC_CALLBACK_RESET);
+-	if (ret != 0)
+-		panic("avc_add_callback() failed, error %d\n", ret);
+-
+ 	return ret;
+ }
+ 
